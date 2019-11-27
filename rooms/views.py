@@ -1,5 +1,7 @@
-from django.utils import timezone
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
+from django.urls import reverse
+from django.http import Http404
+from django.shortcuts import render, redirect
 from . import models
 
 
@@ -12,18 +14,15 @@ class HomeView(ListView):
     ordering = "created"
 
 
-"""
-from django.shortcuts import render, redirect
-from django.core.paginator import Paginator, EmptyPage
+class RoomDetail(DetailView):
+    model = models.Room
+    template_name = ""
 
-def all_rooms(request):
-    page = request.GET.get("page", 1)
-    room_list = models.Room.objects.all()
-    paginator = Paginator(room_list, 10)
+
+def room_detail(request, pk):
     try:
-        rooms = paginator.page(int(page))
-        return render(request, "rooms/home.html", {"pages": rooms})
-    except EmptyPage:
-        return redirect("/")
-"""
-
+        room = models.Room.objects.get(pk=pk)
+        return render(request, "rooms/detail.html", context={"room": room})
+    except models.Room.DoesNotExist:
+        raise Http404()
+        # return redirect(reverse("core:home"))
